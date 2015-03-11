@@ -5,11 +5,22 @@
  */
 package paquete;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Ignacio
  */
 public class FrameJuego extends javax.swing.JFrame {
+
+    
+    //Constantes y Variables Para el Cronometro
+    private final static int ONE_SECOND = 1000;
+    private int segundos = 0;
+    private int minutos = 0;
 
     /**
      * Creates new form PanelGrafico
@@ -19,6 +30,8 @@ public class FrameJuego extends javax.swing.JFrame {
 
         //Centramos la ventana
         setLocationRelativeTo(null);
+        
+        t.start();
     }
 
     /**
@@ -31,6 +44,9 @@ public class FrameJuego extends javax.swing.JFrame {
     private void initComponents() {
 
         panelBotones2 = new paquete.PanelBotones();
+        jLabel1 = new javax.swing.JLabel();
+        jLTiempo = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -40,12 +56,18 @@ public class FrameJuego extends javax.swing.JFrame {
         panelBotones2.setLayout(panelBotones2Layout);
         panelBotones2Layout.setHorizontalGroup(
             panelBotones2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 250, Short.MAX_VALUE)
+            .addGap(0, 378, Short.MAX_VALUE)
         );
         panelBotones2Layout.setVerticalGroup(
             panelBotones2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 250, Short.MAX_VALUE)
         );
+
+        jLabel1.setText("Tiempo:");
+
+        jLTiempo.setText("00:00");
+
+        jButton1.setText("Iniciar Partida");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -53,13 +75,25 @@ public class FrameJuego extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panelBotones2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(217, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelBotones2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLTiempo))
+                    .addComponent(jButton1))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLTiempo))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelBotones2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -102,8 +136,38 @@ public class FrameJuego extends javax.swing.JFrame {
             }
         });
     }
+    
+    //Codigo para el Cronometro
+    //Creamos el objeto Timer (gracias a la ayuda de Anabel Coronel)
+    javax.swing.Timer t = new javax.swing.Timer(ONE_SECOND, new ActionListener() {
+        public void actionPerformed(ActionEvent ae) {
+            segundos++;
+
+            if (segundos == 60) {
+                minutos++;
+                segundos = 0;
+            }
+            if (minutos == 2) {
+                //Mostramos un Mensaje de Partida Perdida
+                JOptionPane.showMessageDialog(
+                        null,
+                        "!!Ohh, ha perdido!! - Fin de la partida",
+                        "Ha perdido",
+                        JOptionPane.ERROR_MESSAGE);
+                
+                t.stop();
+            }
+            //Mostramos las Minutos y Segundos
+            DecimalFormat formato = new DecimalFormat("00");
+            jLTiempo.setText(formato.format(minutos) + ":"
+                    + formato.format(segundos));
+        }
+    });
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLTiempo;
+    private javax.swing.JLabel jLabel1;
     private paquete.PanelBotones panelBotones2;
     // End of variables declaration//GEN-END:variables
 }

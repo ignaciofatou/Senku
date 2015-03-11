@@ -24,6 +24,7 @@ public class PanelBotones extends javax.swing.JPanel {
     private final        int VACIO      = 2;
     private final        int OUT_PANEL  = 3;
     private int[][] tablero;
+    
 
     /**
      * Creates new form PanelBotones
@@ -49,10 +50,7 @@ public class PanelBotones extends javax.swing.JPanel {
         }
         //Posicion de Enmedio
         tablero[3][3]=VACIO;
-    }
-
-
-    
+    }    
     
     
     @Override
@@ -153,36 +151,114 @@ public class PanelBotones extends javax.swing.JPanel {
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
 
-        gestionaCirculos(evt.getX(), evt.getY());
+        gestionaCirculos(evt.getY(), evt.getX());
         this.repaint();        
     }//GEN-LAST:event_formMouseClicked
-    private void gestionaCirculos(int coordenadaX, int coordenadaY){
+    private void gestionaCirculos(int coordenadaY, int coordenadaX){
 
         int espacioOcupado = (RADIO_BTN * 2) + MARGIN_BTN;
         
-        int posX = (coordenadaX - (MARGIN_BTN / 2)) / espacioOcupado;
         int posY = (coordenadaY - (MARGIN_BTN / 2)) / espacioOcupado;
+        int posX = (coordenadaX - (MARGIN_BTN / 2)) / espacioOcupado;
         
-        if (estaDentroTablero(posX, posY))
-            marcaDesmarcaSeleccionado(posX, posY);
+        if (estaDentroTablero(posY, posX))
+            marcaDesmarcaSeleccionado(posY, posX);
     }
-    private void marcaDesmarcaSeleccionado(int posX, int posY){
+    private void marcaDesmarcaSeleccionado(int newPosY, int newPosX){
         
         boolean hayUno = false;
         
-        //Si ya hay uno Seleccionado
+        //Si ya hay uno Seleccionado anteriormente
         if (hayUnoSeleccionado()){
             //Obtenemos la Posicion del Circulo Seleccionado
             int[] pos = getPosicionSeleccionado();
             
             //Si hemos Marcado una que ya esta Seleccionada -> Deseleccionamos
-            if ((posX == pos[0]) && (posY == pos[1]))
-                tablero[posY][posX] = NORMAL;
+            if ((newPosY == pos[0]) && (newPosX == pos[1]))
+                tablero[newPosY][newPosX] = NORMAL;
+            //Si hemos Marcado uno que esta vacio -> Comprobamos si es Adyacente
+            //al que se marco anteriormente
+            else if (tablero[newPosY][newPosX] == VACIO){
+                int difPosY = newPosY - pos[0];
+                int difPosX = newPosX - pos[1];                
+                
+                //Si en una de las coordenadas hay 2 posiciones de diferencia
+                if (((Math.abs(difPosY) == 2) && (difPosX == 0)) ||
+                    ((Math.abs(difPosX) == 2) && (difPosY == 0))){
+                    
+                    //Inicializamos la Posicion de en medio
+                    int posMedioY = newPosY;
+                    int posMedioX = newPosX;
+                    
+                    //Calculamos la Posicion de Enmedio
+                    if (difPosY > 0)
+                        posMedioY--;
+                    else if (difPosY < 0)
+                         posMedioY++;
+                    else if (difPosX > 0)
+                        posMedioX--;
+                    else if (difPosX < 0)
+                        posMedioX++;
+                    
+                    //Si la Posicion de en medio contiene un circulo --> OK
+                    if (tablero[posMedioY][posMedioX] == NORMAL){                    
+                        tablero[newPosY][newPosX] = NORMAL;
+                        tablero[pos[0]][pos[1]] = VACIO;
+                        tablero[posMedioY][posMedioX] = VACIO;
+                        
+                        //Comprobamos si ha finalizado la Partida
+                        compruebaFinPartida();
+                    }
+                }                
+            }
         }
-        //Si no hay ninguna Seleccionado -> Seleccionamos
-        else
-            tablero[posY][posX] = SELECC;
+        //Si no hay ninguna Seleccionado y es Normal -> Seleccionamos
+        else if (tablero[newPosY][newPosX] == NORMAL)
+            tablero[newPosY][newPosX] = SELECC;
     }
+    private void compruebaFinPartida(){
+
+        int numNormal = 0;
+        boolean perdido = true;
+
+        for (int y=0; y<LARGUE; y++){
+            for (int x=0; x<LARGUE; x++){
+                //Si la Posicion contiene una bola Normal
+                if (tablero[y][x] == NORMAL){
+                    numNormal++;
+
+                    //Si de momento no encuentra una Bola adyacente
+                    if (perdido){
+                        //Compruebo si tiene otra Normal Adyacente en Vertical
+                        if ((y >= 1) && (tablero[y - 1][x] == NORMAL)){
+                            //Si Delante de la Bola esta vacio o
+                            //Detras de la Adyacente esta vacio
+                            if ((((y + 1) < LARGUE) && (tablero[y + 1][x] == VACIO)) ||
+                                (((y - 2) >= 0    ) && (tablero[y - 2][x] == VACIO)))
+                                perdido = false;
+                        }
+                        //Compruebo si tiene otra Normal Adyacente en Horizontal
+                        if ((x >= 1) && (tablero[y][x - 1] == NORMAL)){
+                            //Si Arriba de la Bola esta cacio o
+                            //Abajo de la Adyacente esta vacio
+                            if ((((x + 1) < LARGUE) && (tablero[y][x + 1] == VACIO)) ||
+                                (((x - 2) >= 0    ) && (tablero[y][x - 2] == VACIO)))
+                                perdido = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        //Si solo hay uno Normal -> Ha ganado la partida
+        if (numNormal == 1)
+            System.out.println("Ha ganado la Partida");
+        //Si no ha encontrado bolas Adyacentes -> Ha perdido la partida
+        else if (perdido)
+            System.out.println("Ha perdido la Partida");
+    }
+    
+    
     private boolean hayUnoSeleccionado(){
         for (int y=0; y<LARGUE; y++)
             for (int x=0; x<LARGUE; x++)
@@ -196,22 +272,24 @@ public class PanelBotones extends javax.swing.JPanel {
         for (int y=0; y<LARGUE; y++)
             for (int x=0; x<LARGUE; x++)
                 if (tablero[y][x] == SELECC){
-                    pos[0]=x;
-                    pos[1]=y;
+                    pos[0]=y;
+                    pos[1]=x;
                 }                    
         
         return pos;
     }
     
     
-    private boolean estaDentroTablero(int posX, int posY){
-        if ((posX<2) || (posX>4))
-            if ((posY<2) || (posY>4))
+    private boolean estaDentroTablero(int posY, int posX){
+        if ((posY<2) || (posY>4))
+            if ((posX<2) || (posX>4))            
                 return false;
 
         //Esta dentro del Panel
         return true;
     }
+    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
