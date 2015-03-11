@@ -7,12 +7,16 @@ package paquete;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Ignacio
  */
-public class PanelBotones extends javax.swing.JPanel {
+public class PanelTablero extends javax.swing.JPanel {
 
     private static final int LARGUE     = 7;
     private static final int RADIO_BTN  = 15;
@@ -24,14 +28,20 @@ public class PanelBotones extends javax.swing.JPanel {
     private final        int VACIO      = 2;
     private final        int OUT_PANEL  = 3;
     private int[][] tablero;
+    private boolean panelActivo;
     
+    //Constantes y Variables Para el Cronometro
+    private final static int ONE_SECOND = 1000;
+    private int segundos = 0;
+    private int minutos = 0;
 
     /**
      * Creates new form PanelBotones
      */
-    public PanelBotones() {
+    public PanelTablero() {
         initComponents();        
         inicializaTablero();
+        panelActivo = false;
     }
     
     private void inicializaTablero(){
@@ -50,9 +60,32 @@ public class PanelBotones extends javax.swing.JPanel {
         }
         //Posicion de Enmedio
         tablero[3][3]=VACIO;
-    }    
+    }
     
+    //Reiniciamos el Tablero
+    public void reiniciarTablero(){
+        inicializaTablero();
+        this.repaint();
+        panelActivo = false;
+        jLNumMovimientos.setText("0");
+        
+        //Reiniciamos el Cronometro
+        t.restart();
+        t.stop();
+        segundos = 0;
+        minutos = 0;
+        jLTiempo.setText("00:00");
+    }
     
+    private boolean estaDentroTablero(int posY, int posX){
+        if ((posY<2) || (posY>4))
+            if ((posX<2) || (posX>4))            
+                return false;
+
+        //Esta dentro del Panel
+        return true;
+    }   
+            
     @Override
     public void paint(Graphics g) {
         super.paint(g);
@@ -80,8 +113,6 @@ public class PanelBotones extends javax.swing.JPanel {
             posY = posY + (RADIO_BTN * 2) + MARGIN_BTN;
         }
     }
-    
-
     
     private void pintaCirculoBlanco(Graphics g, int posX, int posY, int radio){
         int size = radio * 2;
@@ -131,28 +162,64 @@ public class PanelBotones extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+        jLNumMovimientos = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLTiempo = new javax.swing.JLabel();
+
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 formMouseClicked(evt);
             }
         });
 
+        jLabel1.setText("Movimientos:");
+
+        jLNumMovimientos.setText("0");
+
+        jLabel2.setText("Tiempo:");
+
+        jLTiempo.setText("00:00");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(260, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLTiempo))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLNumMovimientos)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLTiempo))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLNumMovimientos))
+                .addContainerGap(255, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
 
-        gestionaCirculos(evt.getY(), evt.getX());
-        this.repaint();        
+        //Si el Panel esta Activo
+        if (panelActivo){
+            gestionaCirculos(evt.getY(), evt.getX());
+            this.repaint();
+        }
     }//GEN-LAST:event_formMouseClicked
     private void gestionaCirculos(int coordenadaY, int coordenadaX){
 
@@ -200,11 +267,14 @@ public class PanelBotones extends javax.swing.JPanel {
                     else if (difPosX < 0)
                         posMedioX++;
                     
-                    //Si la Posicion de en medio contiene un circulo --> OK
+                    //Si la Posicion de en medio contiene un circulo --> Movemos
                     if (tablero[posMedioY][posMedioX] == NORMAL){                    
                         tablero[newPosY][newPosX] = NORMAL;
                         tablero[pos[0]][pos[1]] = VACIO;
                         tablero[posMedioY][posMedioX] = VACIO;
+                        
+                        //Incrementamos el Numero de Movimientos
+                        jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) + 1));
                         
                         //Comprobamos si ha finalizado la Partida
                         compruebaFinPartida();
@@ -249,13 +319,12 @@ public class PanelBotones extends javax.swing.JPanel {
                 }
             }
         }
-
-        //Si solo hay uno Normal -> Ha ganado la partida
+        //Si solo hay unoa Bola Normal -> Ha ganado la partida
         if (numNormal == 1)
-            System.out.println("Ha ganado la Partida");
+            setFinPartida(true);
         //Si no ha encontrado bolas Adyacentes -> Ha perdido la partida
         else if (perdido)
-            System.out.println("Ha perdido la Partida");
+            setFinPartida(false);
     }
     
     
@@ -279,18 +348,74 @@ public class PanelBotones extends javax.swing.JPanel {
         return pos;
     }
     
-    
-    private boolean estaDentroTablero(int posY, int posX){
-        if ((posY<2) || (posY>4))
-            if ((posX<2) || (posX>4))            
-                return false;
-
-        //Esta dentro del Panel
-        return true;
+    private void setFinPartida(boolean ganada){
+        
+        //Elementos Comunes
+        panelActivo = false;
+        
+        //Paramos el Cronometro
+        t.stop();        
+        
+        //Ha ganado la Partida
+        if (ganada){
+            //Mostramos un Mensaje de Partida Ganada
+            JOptionPane.showMessageDialog(
+                    null,
+                    "!!Bienn, ha ganado!! - Fin de la partida",
+                    "Ha ganado",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+        //Ha perdido la Partida
+        else{
+            //Mostramos un Mensaje de Partida Perdida
+            JOptionPane.showMessageDialog(
+                    null,
+                    "!!Ohh, ha perdido!! - Fin de la partida",
+                    "Ha perdido",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }
     
+    public boolean isPanelActivo() {
+        return panelActivo;
+    }
+
+    public void setPanelActivo(boolean panelActivo) {
+        this.panelActivo = panelActivo;
+        
+        if (panelActivo){
+            t.start();
+        }
+    }
+    
+    //Codigo para el Cronometro
+    //Creamos el objeto Timer (gracias a la ayuda de Anabel Coronel)
+    javax.swing.Timer t = new javax.swing.Timer(ONE_SECOND, new ActionListener() {
+        public void actionPerformed(ActionEvent ae) {
+            segundos++;
+
+            if (segundos == 60) {
+                minutos++;
+                segundos = 0;
+            }
+            if (minutos == 2) {
+                //Mostramos un Mensaje de Partida Perdida
+                setFinPartida(false);
+                
+                t.stop();
+            }
+            //Mostramos las Minutos y Segundos
+            DecimalFormat formato = new DecimalFormat("00");
+            jLTiempo.setText(formato.format(minutos) + ":"
+                    + formato.format(segundos));
+        }
+    }); 
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLNumMovimientos;
+    private javax.swing.JLabel jLTiempo;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
 }

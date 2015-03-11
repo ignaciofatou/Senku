@@ -5,22 +5,13 @@
  */
 package paquete;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import javax.swing.JOptionPane;
-
 /**
  *
  * @author Ignacio
  */
 public class FrameJuego extends javax.swing.JFrame {
 
-    
-    //Constantes y Variables Para el Cronometro
-    private final static int ONE_SECOND = 1000;
-    private int segundos = 0;
-    private int minutos = 0;
+    private boolean inicarPartida = false;
 
     /**
      * Creates new form PanelGrafico
@@ -30,8 +21,6 @@ public class FrameJuego extends javax.swing.JFrame {
 
         //Centramos la ventana
         setLocationRelativeTo(null);
-        
-        t.start();
     }
 
     /**
@@ -43,31 +32,19 @@ public class FrameJuego extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelBotones2 = new paquete.PanelBotones();
-        jLabel1 = new javax.swing.JLabel();
-        jLTiempo = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jBIniciar = new javax.swing.JButton();
+        panelBotones = new paquete.PanelTablero();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        panelBotones2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jBIniciar.setText("Iniciar Partida");
+        jBIniciar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBIniciarActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout panelBotones2Layout = new javax.swing.GroupLayout(panelBotones2);
-        panelBotones2.setLayout(panelBotones2Layout);
-        panelBotones2Layout.setHorizontalGroup(
-            panelBotones2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 378, Short.MAX_VALUE)
-        );
-        panelBotones2Layout.setVerticalGroup(
-            panelBotones2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 250, Short.MAX_VALUE)
-        );
-
-        jLabel1.setText("Tiempo:");
-
-        jLTiempo.setText("00:00");
-
-        jButton1.setText("Iniciar Partida");
+        panelBotones.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -76,30 +53,48 @@ public class FrameJuego extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelBotones2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLTiempo))
-                    .addComponent(jButton1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jBIniciar)
+                    .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addComponent(jBIniciar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLTiempo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelBotones2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(81, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jBIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIniciarActionPerformed
+        
+        //Si pulsa en Iniciar Partida -> Iniciamos la Partida
+        if (!inicarPartida){
+            //Ponemos en Modo Iniciado
+            inicarPartida = true;
+            
+            //Cambiamos el Texto del Boton
+            jBIniciar.setText("Reiniciar Partida");
+            
+            //Activamos el Tablero
+            panelBotones.setPanelActivo(true);
+        }
+        //Si pulsa en Reiniciar Partida -> Creamos un Nuevo Panel
+        else{
+            //Ponemos el Modo Reiniciado
+            inicarPartida = false;
+
+            //Reinicimos el Tablero
+            panelBotones.reiniciarTablero();            
+            
+            //Cambiamos el Texto del Boton
+            jBIniciar.setText("Iniciar Partida");
+        }
+    }//GEN-LAST:event_jBIniciarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -137,37 +132,10 @@ public class FrameJuego extends javax.swing.JFrame {
         });
     }
     
-    //Codigo para el Cronometro
-    //Creamos el objeto Timer (gracias a la ayuda de Anabel Coronel)
-    javax.swing.Timer t = new javax.swing.Timer(ONE_SECOND, new ActionListener() {
-        public void actionPerformed(ActionEvent ae) {
-            segundos++;
 
-            if (segundos == 60) {
-                minutos++;
-                segundos = 0;
-            }
-            if (minutos == 2) {
-                //Mostramos un Mensaje de Partida Perdida
-                JOptionPane.showMessageDialog(
-                        null,
-                        "!!Ohh, ha perdido!! - Fin de la partida",
-                        "Ha perdido",
-                        JOptionPane.ERROR_MESSAGE);
-                
-                t.stop();
-            }
-            //Mostramos las Minutos y Segundos
-            DecimalFormat formato = new DecimalFormat("00");
-            jLTiempo.setText(formato.format(minutos) + ":"
-                    + formato.format(segundos));
-        }
-    });
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLTiempo;
-    private javax.swing.JLabel jLabel1;
-    private paquete.PanelBotones panelBotones2;
+    private javax.swing.JButton jBIniciar;
+    private paquete.PanelTablero panelBotones;
     // End of variables declaration//GEN-END:variables
 }
