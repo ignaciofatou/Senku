@@ -34,6 +34,7 @@ public class FrameJuego extends javax.swing.JFrame {
 
         jBIniciar = new javax.swing.JButton();
         panelBotones = new paquete.PanelTablero();
+        jBDeshacer = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,25 +47,37 @@ public class FrameJuego extends javax.swing.JFrame {
 
         panelBotones.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jBDeshacer.setText("Deshacer");
+        jBDeshacer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBDeshacerActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jBIniciar)
-                    .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jBIniciar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jBDeshacer)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jBIniciar)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jBIniciar)
+                    .addComponent(jBDeshacer))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -95,6 +108,11 @@ public class FrameJuego extends javax.swing.JFrame {
             jBIniciar.setText("Iniciar Partida");
         }
     }//GEN-LAST:event_jBIniciarActionPerformed
+
+    private void jBDeshacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeshacerActionPerformed
+        //Deshacemos el Ultimo Movimiento Realizado
+        panelBotones.deshacerMovimiento();
+    }//GEN-LAST:event_jBDeshacerActionPerformed
 
     /**
      * @param args the command line arguments
@@ -135,6 +153,7 @@ public class FrameJuego extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jBDeshacer;
     private javax.swing.JButton jBIniciar;
     private paquete.PanelTablero panelBotones;
     // End of variables declaration//GEN-END:variables

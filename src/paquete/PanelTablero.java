@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -28,12 +29,14 @@ public class PanelTablero extends javax.swing.JPanel {
     private final        int VACIO      = 2;
     private final        int OUT_PANEL  = 3;
     private int[][] tablero;
+    private ArrayList<String> movimientos;
     private boolean panelActivo;
-    
+
     //Constantes y Variables Para el Cronometro
     private final static int ONE_SECOND = 1000;
     private int segundos = 0;
     private int minutos = 0;
+    private final int TIEMPO_MAXIMO = 2;
 
     /**
      * Creates new form PanelBotones
@@ -47,6 +50,7 @@ public class PanelTablero extends javax.swing.JPanel {
     private void inicializaTablero(){
         
         tablero = new int[LARGUE][LARGUE];
+        movimientos = new ArrayList();
         
         for (int x=0; x<LARGUE; x++){
             for (int y=0; y<LARGUE; y++){
@@ -268,16 +272,9 @@ public class PanelTablero extends javax.swing.JPanel {
                         posMedioX++;
                     
                     //Si la Posicion de en medio contiene un circulo --> Movemos
-                    if (tablero[posMedioY][posMedioX] == NORMAL){                    
-                        tablero[newPosY][newPosX] = NORMAL;
-                        tablero[pos[0]][pos[1]] = VACIO;
-                        tablero[posMedioY][posMedioX] = VACIO;
-                        
-                        //Incrementamos el Numero de Movimientos
-                        jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) + 1));
-                        
-                        //Comprobamos si ha finalizado la Partida
-                        compruebaFinPartida();
+                    if (tablero[posMedioY][posMedioX] == NORMAL){
+                        //Realizamos el Movimiento
+                        realizaMovimiento(pos[0], pos[1], posMedioY, posMedioX, newPosY, newPosX);
                     }
                 }                
             }
@@ -286,6 +283,88 @@ public class PanelTablero extends javax.swing.JPanel {
         else if (tablero[newPosY][newPosX] == NORMAL)
             tablero[newPosY][newPosX] = SELECC;
     }
+
+    //Realizamos los cambios del Movimiento en la Matriz
+    private void realizaMovimiento(int antPosY, int antPosX, int medPosY, int medPosX, int newPosY, int newPosX){
+        //Realizamos los cambios del Movimiento en la Matriz
+        tablero[newPosY][newPosX] = NORMAL;
+        tablero[antPosY][antPosX] = VACIO;
+        tablero[medPosY][medPosX] = VACIO;
+        
+        //Guarda el Movimiento Realizado
+        guardaMovimiento(antPosY, antPosX, newPosY, newPosX);
+
+        //Incrementamos el Numero de Movimientos
+        jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) + 1));
+
+        //Comprobamos si ha finalizado la Partida
+        compruebaFinPartida();
+    }
+    //Deshacemos el ultimo Movimiento Realizado
+    public void deshacerMovimiento(){
+        
+        //Si hay al Menos un Movimiento
+        if (movimientos.size() > 0){
+            //Obtenemos en un String el Ultimo Movimiento Realizado
+            String mov_Anterior = movimientos.get(movimientos.size()-1);
+
+            //Obtenemos la Posicion de los Movimientos dentro del String
+            int posAntPosY = mov_Anterior.indexOf('[', 0) + 1;
+            int posAntPosX = mov_Anterior.indexOf(',', posAntPosY) + 1;
+            int posNewPosY = mov_Anterior.indexOf(',', posAntPosX) + 1;
+            int posNewPosX = mov_Anterior.indexOf(',', posNewPosY) + 1;
+
+            //Obtenemos los Movimientos dentro del String
+            int antPosY = Integer.valueOf(mov_Anterior.substring(posAntPosY, posAntPosX - 1));
+            int antPosX = Integer.valueOf(mov_Anterior.substring(posAntPosX, posNewPosY - 1));
+            int newPosY = Integer.valueOf(mov_Anterior.substring(posNewPosY, posNewPosX - 1));
+            int newPosX = Integer.valueOf(mov_Anterior.substring(posNewPosX, mov_Anterior.indexOf(']', posNewPosY)));
+
+            //Calculamos la Posicion de Enmedio
+            int difPosY = newPosY - antPosY;
+            int difPosX = newPosX - antPosX;
+
+            //Inicializamos la Posicion de en medio
+            int posMedioY = newPosY;
+            int posMedioX = newPosX;
+
+            //Calculamos la Posicion de Enmedio
+            if (difPosY > 0) {
+                posMedioY--;
+            } else if (difPosY < 0) {
+                posMedioY++;
+            } else if (difPosX > 0) {
+                posMedioX--;
+            } else if (difPosX < 0) {
+                posMedioX++;
+            }
+
+            //Realizamos los cambios del Movimiento en la Matriz
+            tablero[newPosY][newPosX] = VACIO;
+            tablero[antPosY][antPosX] = NORMAL;
+            tablero[posMedioY][posMedioX] = NORMAL;
+
+            //Borramos el Ultimo Movimiento
+            borraMovimiento();
+
+            //Decrementamos el Numero de Movimientos
+            jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) - 1));
+
+            //Repintamos el Panel
+            this.repaint();
+        }
+    }
+
+    //Guardamos en un ArrayList las posiciones del Movimiento Realizado
+    private void guardaMovimiento(int antPosY, int antPosX, int newPosY, int newPosX){
+        //Realizamos una Copia del Movimiento Realizado
+        movimientos.add("[" + antPosY + "," + antPosX + "," + newPosY + "," + newPosX + "]");
+    }
+    //Borramos del ArrayList el ultimo movimiento
+    private void borraMovimiento(){
+        movimientos.remove(movimientos.size()-1);
+    }
+    
     private void compruebaFinPartida(){
 
         int numNormal = 0;
@@ -398,7 +477,7 @@ public class PanelTablero extends javax.swing.JPanel {
                 minutos++;
                 segundos = 0;
             }
-            if (minutos == 2) {
+            if (minutos == TIEMPO_MAXIMO) {
                 //Mostramos un Mensaje de Partida Perdida
                 setFinPartida(false);
                 
