@@ -19,15 +19,16 @@ import javax.swing.JOptionPane;
  */
 public class PanelTablero extends javax.swing.JPanel {
 
-    private static final int LARGUE     = 7;
-    private static final int RADIO_BTN  = 15;
-    private static final int MARGIN_BTN = 5;
-    private final     String COL_NORMAL = "FF0000";
-    private final     String COL_SELECC = "0000FF";
-    private final        int NORMAL     = 0;
-    private final        int SELECC     = 1;
-    private final        int VACIO      = 2;
-    private final        int OUT_PANEL  = 3;
+    private static final int LARGUE      = 7;
+    private static final int RADIO_BTN   = 15;
+    private static final int MARGIN_BTN  = 5;
+    private final     String COL_NORMAL  = "FF0000";
+    private final     String COL_SELECC  = "0000FF";
+    private final        int NORMAL      = 0;
+    private final        int SELECC      = 1;
+    private final        int VACIO       = 2;
+    private final        int OUT_PANEL   = 3;
+
     private int[][] tablero;
     private ArrayList<String> movimientos;
     private boolean panelActivo;
@@ -49,21 +50,12 @@ public class PanelTablero extends javax.swing.JPanel {
     
     private void inicializaTablero(){
         
-        tablero = new int[LARGUE][LARGUE];
-        movimientos = new ArrayList();
+        //Cargamos los Datos del Tablero desde un Fichero
+        DatosTablero datosTablero = new DatosTablero();
+        tablero = datosTablero.getTablero();
         
-        for (int x=0; x<LARGUE; x++){
-            for (int y=0; y<LARGUE; y++){
-                //Si Esta dentro del Tablero
-                if (estaDentroTablero(x, y))
-                    tablero[x][y]=NORMAL;
-                //Esta fuera del Tablero
-                else
-                    tablero[x][y]=OUT_PANEL;
-            }
-        }
-        //Posicion de Enmedio
-        tablero[3][3]=VACIO;
+        //ArrayList para guardar los movimientos
+        movimientos = new ArrayList();
     }
     
     //Reiniciamos el Tablero
