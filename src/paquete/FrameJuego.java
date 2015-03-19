@@ -76,6 +76,11 @@ public class FrameJuego extends javax.swing.JFrame {
         });
 
         jButton1.setText("Guardar Movimientos");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jCBNombresTableros.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -178,6 +183,11 @@ public class FrameJuego extends javax.swing.JFrame {
         //Reiniciamos el Panel
         reiniciarPartida();
     }//GEN-LAST:event_jCBNombresTablerosActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        DatosXML datosXML = new DatosXML();
+        datosXML.generaXML(panelBotones.getMovimientos());
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

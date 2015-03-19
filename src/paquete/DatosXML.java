@@ -29,11 +29,14 @@ import org.w3c.dom.Element;
  */
 public class DatosXML {
     
-    private final String NOMBRE_XML = "Champions.xml";
+    private final String RUT_XML = "movimientos/";
+    private final String NOM_XML = "Mov_";
+    private final String EXT_XML = ".xml";
 
-    private void generaXML(ArrayList<String> movimientos){
+    public void generaXML(ArrayList<Movimiento> movimientos){
 
-        //Definimos los Equipos de la Semifinal 1
+        //Definimos el Nombre del Fichero XML
+        String nombreXML = RUT_XML + NOM_XML + Fecha.getFechaHora() + EXT_XML;
 
         //Elementos para el XML
         try {
@@ -48,24 +51,9 @@ public class DatosXML {
             documento.appendChild(elementoMovimientos);
             
             //Recorremos todos los Movimientos
-            for(String movimiento:movimientos){
+            for (Movimiento movimiento:movimientos){
                 elementoMovimientos.appendChild(getMovimientoXML(documento, movimiento));
             }
-
-            //Crear un elemento FINAL y metemos el elemento PARTIDO
-            Element elementoMovimiento = documento.createElement("MOVIMIENTO");
-            elementoMovimiento.appendChild(finalisima.getPartidoXML(documento));
-            
-            //El elemento FINAL lo colgamos del elemento principal CHAMPION
-            elementoMovimientos.appendChild(elementoMovimiento);
-
-            //Crear un elemento SEMIFINAL y metemos los elementos PARTIDOS
-            Element elementoSemifinal = documento.createElement("SEMIFINAL");
-            elementoSemifinal.appendChild(semifinal1.getPartidoXML(documento));
-            elementoSemifinal.appendChild(semifinal2.getPartidoXML(documento));
-            //El elemento SEMIFINAL lo colgamos del elemento principal CHAMPION
-            elementoMovimientos.appendChild(elementoSemifinal);
- 
 
             //Churrro para poder generar el fichero XML
             //Generar el tranformador para obtener el documento XML en un fichero
@@ -76,7 +64,7 @@ public class DatosXML {
             //Añadir 3 espacios delante, en función del nivel de cada nodo
             transformador.setOutputProperty(OutputPropertiesFactory.S_KEY_INDENT_AMOUNT, "3");
             Source origen = new DOMSource(documento);
-            Result destino = new StreamResult(NOMBRE_XML);
+            Result destino = new StreamResult(nombreXML);
             transformador.transform(origen, destino);
             
         } catch (ParserConfigurationException ex) {
@@ -91,24 +79,37 @@ public class DatosXML {
         }        
     }
     
-    public Element getMovimientoXML(Document documento, String movimiento){
-        //Creamos el Elemento PARTIDO
-        Element elementoPatido = documento.createElement("PARTIDO");
+    private Element getMovimientoXML(Document documento, Movimiento movimiento){
+        //Creamos el Elemento MOVIMIENTO
+        Element elementoMovimiento = documento.createElement("MOVIMIENTO");
 
-        //Crear un elemento EQUIPO 1
-        Element elementoEquipo1 = documento.createElement("EQUIPO");
-        //elementoEquipo1.setTextContent(equipo1);
-        
-        //Crear un elemento EQUIPO 2
-        Element elementoEquipo2 = documento.createElement("EQUIPO");
-        //elementoEquipo2.setTextContent(equipo2);
-        
-        //Colgar los equipos en la etiqueta PARTIDO
-        elementoPatido.appendChild(elementoEquipo1);
-        elementoPatido.appendChild(elementoEquipo2);
+        //Coordenadas para el Movimiento Anterior
+        elementoMovimiento.appendChild(getCoordenadaXML(documento, "ANTERIOR", movimiento.getOldY(), movimiento.getOldX()));
+        //Coordenadas para el Movimiento Nuevo
+        elementoMovimiento.appendChild(getCoordenadaXML(documento, "NUEVO", movimiento.getNewY(), movimiento.getNewX()));
 
         //Retornamos el Element
-        return elementoPatido;
+        return elementoMovimiento;
+    }
+    public Element getCoordenadaXML(Document documento, String momento, int posY, int posX){
+        
+        //Padre de las Coordenadas
+        Element elementoMomento = documento.createElement(momento);
+
+        //Coordenada Y
+        Element elementoY = documento.createElement("Y");
+        elementoY.setTextContent(String.valueOf(posY));
+
+        //Coordenada X
+        Element elementoX = documento.createElement("X");
+        elementoX.setTextContent(String.valueOf(posX));
+        
+        //Le establecemos las Coordenadas
+        elementoMomento.appendChild(elementoY);
+        elementoMomento.appendChild(elementoX);
+        
+        //Coordenadas
+        return elementoMomento;
     }
 
 }

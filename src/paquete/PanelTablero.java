@@ -29,7 +29,8 @@ public class PanelTablero extends javax.swing.JPanel {
     private final        int OUT_PANEL   = 3;
 
     private int[][] tablero;
-    private ArrayList<String> movimientos;
+    private ArrayList<Movimiento> movimientos;
+    
     private boolean panelActivo;
 
     //Constantes y Variables Para el Cronometro
@@ -226,38 +227,22 @@ public class PanelTablero extends javax.swing.JPanel {
         if (hayUnoSeleccionado()){
             //Obtenemos la Posicion del Circulo Seleccionado
             int[] pos = getPosicionSeleccionado();
-            
+
             //Si hemos Marcado una que ya esta Seleccionada -> Deseleccionamos
             if ((newPosY == pos[0]) && (newPosX == pos[1]))
                 tablero[newPosY][newPosX] = NORMAL;
             //Si hemos Marcado uno que esta vacio -> Comprobamos si es Adyacente
             //al que se marco anteriormente
             else if (tablero[newPosY][newPosX] == VACIO){
-                int difPosY = newPosY - pos[0];
-                int difPosX = newPosX - pos[1];                
+                //Creamos el Nuevo Movimiento
+                Movimiento newMovimiento = new Movimiento(pos[0], pos[1], newPosY, newPosX);
                 
-                //Si en una de las coordenadas hay 2 posiciones de diferencia
-                if (((Math.abs(difPosY) == 2) && (difPosX == 0)) ||
-                    ((Math.abs(difPosX) == 2) && (difPosY == 0))){
-                    
-                    //Inicializamos la Posicion de en medio
-                    int posMedioY = newPosY;
-                    int posMedioX = newPosX;
-                    
-                    //Calculamos la Posicion de Enmedio
-                    if (difPosY > 0)
-                        posMedioY--;
-                    else if (difPosY < 0)
-                         posMedioY++;
-                    else if (difPosX > 0)
-                        posMedioX--;
-                    else if (difPosX < 0)
-                        posMedioX++;
-                    
+                //En una de las coordenadas debe haber 2 posiciones de diferencia
+                if (newMovimiento.isMovimientoValido()){
                     //Si la Posicion de en medio contiene un circulo --> Movemos
-                    if (tablero[posMedioY][posMedioX] == NORMAL){
+                    if (tablero[newMovimiento.getMedY()][newMovimiento.getMedX()] == NORMAL){
                         //Realizamos el Movimiento
-                        realizaMovimiento(pos[0], pos[1], posMedioY, posMedioX, newPosY, newPosX);
+                        realizaMovimiento(newMovimiento);
                     }
                 }                
             }
@@ -268,14 +253,14 @@ public class PanelTablero extends javax.swing.JPanel {
     }
 
     //Realizamos los cambios del Movimiento en la Matriz
-    private void realizaMovimiento(int antPosY, int antPosX, int medPosY, int medPosX, int newPosY, int newPosX){
+    private void realizaMovimiento(Movimiento newMovimiento){
         //Realizamos los cambios del Movimiento en la Matriz
-        tablero[newPosY][newPosX] = NORMAL;
-        tablero[antPosY][antPosX] = VACIO;
-        tablero[medPosY][medPosX] = VACIO;
+        tablero[newMovimiento.getNewY()][newMovimiento.getNewX()] = NORMAL;
+        tablero[newMovimiento.getOldY()][newMovimiento.getOldX()] = VACIO;
+        tablero[newMovimiento.getMedY()][newMovimiento.getMedX()] = VACIO;
         
         //Guarda el Movimiento Realizado
-        guardaMovimiento(antPosY, antPosX, newPosY, newPosX);
+        getMovimientos().add(newMovimiento);
 
         //Incrementamos el Numero de Movimientos
         jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) + 1));
@@ -285,50 +270,28 @@ public class PanelTablero extends javax.swing.JPanel {
     }
     //Deshacemos el ultimo Movimiento Realizado
     public void deshacerMovimiento(){
-        
+
         //Si hay al Menos un Movimiento
-        if (movimientos.size() > 0){
-            //Obtenemos en un String el Ultimo Movimiento Realizado
-            String mov_Anterior = movimientos.get(movimientos.size()-1);
-
-            //Obtenemos la Posicion de los Movimientos dentro del String
-            int posAntPosY = mov_Anterior.indexOf('[', 0) + 1;
-            int posAntPosX = mov_Anterior.indexOf(',', posAntPosY) + 1;
-            int posNewPosY = mov_Anterior.indexOf(',', posAntPosX) + 1;
-            int posNewPosX = mov_Anterior.indexOf(',', posNewPosY) + 1;
-
-            //Obtenemos los Movimientos dentro del String
-            int antPosY = Integer.valueOf(mov_Anterior.substring(posAntPosY, posAntPosX - 1));
-            int antPosX = Integer.valueOf(mov_Anterior.substring(posAntPosX, posNewPosY - 1));
-            int newPosY = Integer.valueOf(mov_Anterior.substring(posNewPosY, posNewPosX - 1));
-            int newPosX = Integer.valueOf(mov_Anterior.substring(posNewPosX, mov_Anterior.indexOf(']', posNewPosY)));
-
-            //Calculamos la Posicion de Enmedio
-            int difPosY = newPosY - antPosY;
-            int difPosX = newPosX - antPosX;
-
-            //Inicializamos la Posicion de en medio
-            int posMedioY = newPosY;
-            int posMedioX = newPosX;
-
-            //Calculamos la Posicion de Enmedio
-            if (difPosY > 0) {
-                posMedioY--;
-            } else if (difPosY < 0) {
-                posMedioY++;
-            } else if (difPosX > 0) {
-                posMedioX--;
-            } else if (difPosX < 0) {
-                posMedioX++;
-            }
+        if ((getMovimientos().size()) > 0){
+            
+            //Posicin Real en el ArrayList
+            int posUlt = getMovimientos().size() - 1;
+            
+            //Obtenemos la Posicion del Ultimo Movimiento Realizado
+            int antPosY = getMovimientos().get(posUlt).getOldY();
+            int antPosX = getMovimientos().get(posUlt).getOldX();
+            int newPosY = getMovimientos().get(posUlt).getNewY();
+            int newPosX = getMovimientos().get(posUlt).getNewX();
+            int posMedY = getMovimientos().get(posUlt).getMedY();
+            int posMedX = getMovimientos().get(posUlt).getMedX();
 
             //Realizamos los cambios del Movimiento en la Matriz
             tablero[newPosY][newPosX] = VACIO;
             tablero[antPosY][antPosX] = NORMAL;
-            tablero[posMedioY][posMedioX] = NORMAL;
+            tablero[posMedY][posMedX] = NORMAL;
 
             //Borramos el Ultimo Movimiento
-            borraMovimiento();
+            getMovimientos().remove(getMovimientos().size()-1);
 
             //Decrementamos el Numero de Movimientos
             jLNumMovimientos.setText(String.valueOf(Integer.valueOf(jLNumMovimientos.getText()) - 1));
@@ -337,17 +300,8 @@ public class PanelTablero extends javax.swing.JPanel {
             this.repaint();
         }
     }
-
-    //Guardamos en un ArrayList las posiciones del Movimiento Realizado
-    private void guardaMovimiento(int antPosY, int antPosX, int newPosY, int newPosX){
-        //Realizamos una Copia del Movimiento Realizado
-        movimientos.add("[" + antPosY + "," + antPosX + "," + newPosY + "," + newPosX + "]");
-    }
-    //Borramos del ArrayList el ultimo movimiento
-    private void borraMovimiento(){
-        movimientos.remove(movimientos.size()-1);
-    }
     
+    //Comprueba si se ha perdido la partida o si se ha ganado
     private void compruebaFinPartida(){
 
         int numNormal = 0;
@@ -448,6 +402,9 @@ public class PanelTablero extends javax.swing.JPanel {
             t.start();
         }
     }
+    public ArrayList<Movimiento> getMovimientos() {
+        return movimientos;
+    }
     
     //Codigo para el Cronometro
     //Creamos el objeto Timer (gracias a la ayuda de Anabel Coronel)
@@ -479,4 +436,6 @@ public class PanelTablero extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
+
+
 }
