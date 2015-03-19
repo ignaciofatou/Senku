@@ -19,7 +19,6 @@ import javax.swing.JOptionPane;
  */
 public class PanelTablero extends javax.swing.JPanel {
 
-    private static final int LARGUE      = 7;
     private static final int RADIO_BTN   = 15;
     private static final int MARGIN_BTN  = 5;
     private final     String COL_NORMAL  = "FF0000";
@@ -43,24 +42,23 @@ public class PanelTablero extends javax.swing.JPanel {
      * Creates new form PanelBotones
      */
     public PanelTablero() {
-        initComponents();        
-        inicializaTablero();
+        initComponents();
         panelActivo = false;
     }
-    
-    private void inicializaTablero(){
-        
-        //Cargamos los Datos del Tablero desde un Fichero
-        DatosTablero datosTablero = new DatosTablero();
-        tablero = datosTablero.getTablero();
-        
+
+    public void inicializaTablero(int[][] p_Tablero){        
+
+        //Cargamos los Datos del Tablero desde su Copia
+        tablero = p_Tablero;
+
         //ArrayList para guardar los movimientos
         movimientos = new ArrayList();
     }
-    
+
     //Reiniciamos el Tablero
-    public void reiniciarTablero(){
-        inicializaTablero();
+    public void reiniciarTablero(int[][] p_Tablero){
+        //Reinicia los circulos del Tablero
+        inicializaTablero(p_Tablero);
         this.repaint();
         panelActivo = false;
         jLNumMovimientos.setText("0");
@@ -73,40 +71,35 @@ public class PanelTablero extends javax.swing.JPanel {
         jLTiempo.setText("00:00");
     }
     
-    private boolean estaDentroTablero(int posY, int posX){
-        if ((posY<2) || (posY>4))
-            if ((posX<2) || (posX>4))            
-                return false;
-
-        //Esta dentro del Panel
-        return true;
-    }   
-            
     @Override
     public void paint(Graphics g) {
         super.paint(g);
 
-        //Obtenemos el color en formato HSB
-        float[] colorHSB_Normal = getColorHSB(COL_NORMAL);
-        float[] colorHSB_Selecc = getColorHSB(COL_SELECC);
-        int posX = MARGIN_BTN;
-        int posY = MARGIN_BTN;
-        
-        for (int y=0; y<LARGUE; y++){
-            
-            for (int x=0; x<LARGUE; x++){
-                
-                if (tablero[y][x] == NORMAL)
-                    pintaCirculo3D(g, posX, posY, RADIO_BTN, colorHSB_Normal);
-                else if (tablero[y][x] == SELECC)
-                    pintaCirculo3D(g, posX, posY, RADIO_BTN, colorHSB_Selecc);
-                else if (tablero[y][x] == VACIO)
-                    pintaCirculoBlanco(g, posX, posY, RADIO_BTN);
-                
-                posX = posX + (RADIO_BTN * 2) + MARGIN_BTN;
+        if (tablero != null){
+            //Obtenemos el color en formato HSB
+            float[] colorHSB_Normal = getColorHSB(COL_NORMAL);
+            float[] colorHSB_Selecc = getColorHSB(COL_SELECC);
+            int posX = MARGIN_BTN;
+            int posY = MARGIN_BTN;
+            int size = tablero.length;
+
+            for (int y = 0; y < size; y++) {
+
+                for (int x = 0; x < size; x++) {
+
+                    if (tablero[y][x] == NORMAL) {
+                        pintaCirculo3D(g, posX, posY, RADIO_BTN, colorHSB_Normal);
+                    } else if (tablero[y][x] == SELECC) {
+                        pintaCirculo3D(g, posX, posY, RADIO_BTN, colorHSB_Selecc);
+                    } else if (tablero[y][x] == VACIO) {
+                        pintaCirculoBlanco(g, posX, posY, RADIO_BTN);
+                    }
+
+                    posX = posX + (RADIO_BTN * 2) + MARGIN_BTN;
+                }
+                posX = MARGIN_BTN;
+                posY = posY + (RADIO_BTN * 2) + MARGIN_BTN;
             }
-            posX = MARGIN_BTN;
-            posY = posY + (RADIO_BTN * 2) + MARGIN_BTN;
         }
     }
     
@@ -119,7 +112,7 @@ public class PanelTablero extends javax.swing.JPanel {
         
         //Calculamos el Tamaño del Circulo
         int size = radio * 2;
-        float resta = (float)(0.8/radio);
+        float resta = (float)(0.9/radio);
         float saturation = colorHSB[1];
 
         for (int x=size; x > 1; x=x-2){
@@ -182,7 +175,7 @@ public class PanelTablero extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(260, Short.MAX_VALUE)
+                .addContainerGap(339, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
@@ -205,7 +198,7 @@ public class PanelTablero extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLNumMovimientos))
-                .addContainerGap(255, Short.MAX_VALUE))
+                .addContainerGap(304, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -224,12 +217,10 @@ public class PanelTablero extends javax.swing.JPanel {
         int posY = (coordenadaY - (MARGIN_BTN / 2)) / espacioOcupado;
         int posX = (coordenadaX - (MARGIN_BTN / 2)) / espacioOcupado;
         
-        if (estaDentroTablero(posY, posX))
-            marcaDesmarcaSeleccionado(posY, posX);
+        //Gestionamos si se Marca o no la posicion seleccionada
+        marcaDesmarcaSeleccionado(posY, posX);
     }
     private void marcaDesmarcaSeleccionado(int newPosY, int newPosX){
-        
-        boolean hayUno = false;
         
         //Si ya hay uno Seleccionado anteriormente
         if (hayUnoSeleccionado()){
@@ -361,9 +352,10 @@ public class PanelTablero extends javax.swing.JPanel {
 
         int numNormal = 0;
         boolean perdido = true;
+        int size = tablero.length;
 
-        for (int y=0; y<LARGUE; y++){
-            for (int x=0; x<LARGUE; x++){
+        for (int y=0; y<size; y++){
+            for (int x=0; x<size; x++){
                 //Si la Posicion contiene una bola Normal
                 if (tablero[y][x] == NORMAL){
                     numNormal++;
@@ -374,7 +366,7 @@ public class PanelTablero extends javax.swing.JPanel {
                         if ((y >= 1) && (tablero[y - 1][x] == NORMAL)){
                             //Si Delante de la Bola esta vacio o
                             //Detras de la Adyacente esta vacio
-                            if ((((y + 1) < LARGUE) && (tablero[y + 1][x] == VACIO)) ||
+                            if ((((y + 1) < size) && (tablero[y + 1][x] == VACIO)) ||
                                 (((y - 2) >= 0    ) && (tablero[y - 2][x] == VACIO)))
                                 perdido = false;
                         }
@@ -382,7 +374,7 @@ public class PanelTablero extends javax.swing.JPanel {
                         if ((x >= 1) && (tablero[y][x - 1] == NORMAL)){
                             //Si Arriba de la Bola esta cacio o
                             //Abajo de la Adyacente esta vacio
-                            if ((((x + 1) < LARGUE) && (tablero[y][x + 1] == VACIO)) ||
+                            if ((((x + 1) < size) && (tablero[y][x + 1] == VACIO)) ||
                                 (((x - 2) >= 0    ) && (tablero[y][x - 2] == VACIO)))
                                 perdido = false;
                         }
@@ -400,8 +392,9 @@ public class PanelTablero extends javax.swing.JPanel {
     
     
     private boolean hayUnoSeleccionado(){
-        for (int y=0; y<LARGUE; y++)
-            for (int x=0; x<LARGUE; x++)
+        int size = tablero.length;
+        for (int y=0; y<size; y++)
+            for (int x=0; x<size; x++)
                 if (tablero[y][x] == SELECC)
                     return true;
         
@@ -409,8 +402,9 @@ public class PanelTablero extends javax.swing.JPanel {
     }
     private int[] getPosicionSeleccionado(){
         int[] pos = new int[2];
-        for (int y=0; y<LARGUE; y++)
-            for (int x=0; x<LARGUE; x++)
+        int size = tablero.length;
+        for (int y=0; y<size; y++)
+            for (int x=0; x<size; x++)
                 if (tablero[y][x] == SELECC){
                     pos[0]=y;
                     pos[1]=x;
@@ -447,10 +441,6 @@ public class PanelTablero extends javax.swing.JPanel {
         }
     }
     
-    public boolean isPanelActivo() {
-        return panelActivo;
-    }
-
     public void setPanelActivo(boolean panelActivo) {
         this.panelActivo = panelActivo;
         

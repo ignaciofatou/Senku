@@ -5,6 +5,8 @@
  */
 package paquete;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Ignacio
@@ -12,6 +14,8 @@ package paquete;
 public class FrameJuego extends javax.swing.JFrame {
 
     private boolean inicarPartida = false;
+    DatosTablero datosTablero;
+    private final int TABLERO_4 = 3;
 
     /**
      * Creates new form PanelGrafico
@@ -21,6 +25,20 @@ public class FrameJuego extends javax.swing.JFrame {
 
         //Centramos la ventana
         setLocationRelativeTo(null);
+        
+        //Creamos el Objeto con los Datos del Fichero de Configuracion
+        datosTablero = new DatosTablero();
+        
+        //Cargamos el ComboBox con los Nombres de los Tableros
+        ArrayList<String> nombresTableros = datosTablero.getNombresTableros();        
+        for(String nombreTablero:nombresTableros){
+            jCBNombresTableros.addItem(nombreTablero);
+        }
+        //Seleccionamos por defecto el Tablero Nº 4
+        jCBNombresTableros.setSelectedIndex(TABLERO_4);
+        
+        //Cargamos el Tablero
+        reiniciarPartida();
     }
 
     /**
@@ -36,6 +54,8 @@ public class FrameJuego extends javax.swing.JFrame {
         panelBotones = new paquete.PanelTablero();
         jBDeshacer = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jCBNombresTableros = new javax.swing.JComboBox();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,7 +75,15 @@ public class FrameJuego extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Guardar");
+        jButton1.setText("Guardar Movimientos");
+
+        jCBNombresTableros.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBNombresTablerosActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Tablero:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -65,27 +93,36 @@ public class FrameJuego extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jBIniciar)
+                        .addComponent(jBIniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jBDeshacer)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(135, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jCBNombresTableros, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jBIniciar)
-                    .addComponent(jBDeshacer)
-                    .addComponent(jButton1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jBIniciar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jBDeshacer, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(jCBNombresTableros, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -94,33 +131,53 @@ public class FrameJuego extends javax.swing.JFrame {
     private void jBIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBIniciarActionPerformed
         
         //Si pulsa en Iniciar Partida -> Iniciamos la Partida
-        if (!inicarPartida){
-            //Ponemos en Modo Iniciado
-            inicarPartida = true;
-            
-            //Cambiamos el Texto del Boton
-            jBIniciar.setText("Reiniciar Partida");
-            
-            //Activamos el Tablero
-            panelBotones.setPanelActivo(true);
-        }
+        if (!inicarPartida)
+            iniciarPartida();
         //Si pulsa en Reiniciar Partida -> Creamos un Nuevo Panel
-        else{
-            //Ponemos el Modo Reiniciado
-            inicarPartida = false;
-
-            //Reinicimos el Tablero
-            panelBotones.reiniciarTablero();            
-            
-            //Cambiamos el Texto del Boton
-            jBIniciar.setText("Iniciar Partida");
-        }
+        else
+            reiniciarPartida();
     }//GEN-LAST:event_jBIniciarActionPerformed
 
+    private void iniciarPartida(){
+        //Ponemos en Modo Iniciado
+        inicarPartida = true;
+
+        //Cambiamos el Texto del Boton
+        jBIniciar.setText("Reiniciar");
+
+        //Obtenemos el Nombre del Tablero Seleccionado
+        String nombreTablero = jCBNombresTableros.getSelectedItem().toString();
+
+        //Cargamos los Datos del Tablero Seleccionado
+        panelBotones.inicializaTablero(datosTablero.getTablero(nombreTablero));
+
+        //Activamos el Tablero
+        panelBotones.setPanelActivo(true);
+    }
+    
+    private void reiniciarPartida(){
+        //Ponemos el Modo Reiniciado
+        inicarPartida = false;
+
+        //Obtenemos el Nombre del Tablero Seleccionado
+        String nombreTablero = jCBNombresTableros.getSelectedItem().toString();
+
+        //Reinicimos el Tablero
+        panelBotones.reiniciarTablero(datosTablero.getTablero(nombreTablero));
+
+        //Cambiamos el Texto del Boton
+        jBIniciar.setText("Iniciar Partida");
+    }
+    
     private void jBDeshacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeshacerActionPerformed
         //Deshacemos el Ultimo Movimiento Realizado
         panelBotones.deshacerMovimiento();
     }//GEN-LAST:event_jBDeshacerActionPerformed
+
+    private void jCBNombresTablerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBNombresTablerosActionPerformed
+        //Reiniciamos el Panel
+        reiniciarPartida();
+    }//GEN-LAST:event_jCBNombresTablerosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,6 +221,8 @@ public class FrameJuego extends javax.swing.JFrame {
     private javax.swing.JButton jBDeshacer;
     private javax.swing.JButton jBIniciar;
     private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jCBNombresTableros;
+    private javax.swing.JLabel jLabel1;
     private paquete.PanelTablero panelBotones;
     // End of variables declaration//GEN-END:variables
 }

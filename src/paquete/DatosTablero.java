@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -17,22 +18,60 @@ import java.io.IOException;
  */
 public class DatosTablero {
     
-    //Datos Iniciales del Tablero    
-    private int[][] tablero;
     private final String FICHERO_TABLEROS = "Tableros.txt";
     private final String RUTA_TABLEROS    = "/config/";
-    private final String TABLERO_DEF      = "Tablero 4";
     
-    
-    public DatosTablero(){
-        setTablero(TABLERO_DEF);
-    }
-    public DatosTablero(String nombreTablero){
-        setTablero(nombreTablero);
-    }
-    
-    private void setTablero(String nombreTablero){
+    //Busca en el Fichero de configuracion todos los Nombres de Tableros
+    //y los Retorna en un ArrayList
+    public ArrayList<String> getNombresTableros(){
 
+        //ArrayList para Guardar todos los Nombres de los Tableros
+        ArrayList<String> nombreTableros = new ArrayList();
+        
+        //Ruta y Nombre del Fichero de Configuracion de los Tableros
+        String nombreFichero = new File("").getAbsolutePath() + RUTA_TABLEROS + FICHERO_TABLEROS;
+        String linea;
+
+        //Declarar una variable BufferedReader
+        BufferedReader br = null;
+        try {
+            //Crear un objeto BufferedReader al que se le pasa 
+            //   un objeto FileReader con el nombre del fichero
+            br = new BufferedReader(new FileReader(nombreFichero));
+
+            //Repetir mientras no se llegue al final del fichero
+            while ((linea = br.readLine()) != null) {
+
+                //Si encuentra un nuevo nombre de Tablero -> Lo guardamos
+                if (linea.contains("["))
+                    nombreTableros.add(linea.substring(1, linea.indexOf("]")));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: Fichero no encontrado");
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error de lectura del fichero");
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                System.out.println("Error al cerrar el fichero");
+                System.out.println(e.getMessage());
+            }
+        }
+        //Retornamos los Nombres de los Tableros
+        return nombreTableros;
+    }
+
+    //Retorna en una Matriz el Tablero seleccionado
+    public int[][] getTablero(String nombreTablero){
+
+        //Para guardar la Matriz del Tablero Seleccionado
+        int[][] tablero = new int[10][10];
+        
         //Ruta y Nombre del Fichero de Configuracion de los Tableros
         String nombreFichero = new File("").getAbsolutePath() + RUTA_TABLEROS + FICHERO_TABLEROS;
 
@@ -42,6 +81,7 @@ public class DatosTablero {
             //Crear un objeto BufferedReader al que se le pasa 
             //   un objeto FileReader con el nombre del fichero
             br = new BufferedReader(new FileReader(nombreFichero));
+            //br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(RUTA_TABLEROS + FICHERO_TABLEROS)));
 
             //Variable para almacenar cada linea
             String texto;
@@ -93,7 +133,11 @@ public class DatosTablero {
                 System.out.println(e.getMessage());
             }
         }
-    }    
+        //Retornamos el Tablero
+        return tablero;
+    }
+    
+
     
     private int[] getCadenaTablero(String cadena){
         //Longitud de la Cadena
@@ -108,12 +152,5 @@ public class DatosTablero {
         }
         //Retornamos la Cadena con todos los Numeros
         return cadenaNumeros;        
-    }
-
-    /**
-     * @return the tablero
-     */
-    public int[][] getTablero() {
-        return tablero;
     }
 }
