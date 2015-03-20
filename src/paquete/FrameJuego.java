@@ -15,7 +15,8 @@ public class FrameJuego extends javax.swing.JFrame {
 
     private boolean inicarPartida = false;
     DatosTablero datosTablero;
-    private final int TABLERO_4 = 3;
+    DatosCSV     ficheroCSV;
+    private final int TABLERO_4 = 3;    
 
     /**
      * Creates new form PanelGrafico
@@ -37,6 +38,9 @@ public class FrameJuego extends javax.swing.JFrame {
         //Seleccionamos por defecto el Tablero Nº 4
         jCBNombresTableros.setSelectedIndex(TABLERO_4);
         
+        //Creamos el Objeto para el CSV
+        ficheroCSV = new DatosCSV();
+        
         //Cargamos el Tablero
         reiniciarPartida();
     }
@@ -51,13 +55,18 @@ public class FrameJuego extends javax.swing.JFrame {
     private void initComponents() {
 
         jBIniciar = new javax.swing.JButton();
-        panelBotones = new paquete.PanelTablero();
+        panelTablero = new paquete.PanelTablero();
         jBDeshacer = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jCBNombresTableros = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jBIniciar.setText("Iniciar Partida");
         jBIniciar.addActionListener(new java.awt.event.ActionListener() {
@@ -66,7 +75,7 @@ public class FrameJuego extends javax.swing.JFrame {
             }
         });
 
-        panelBotones.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        panelTablero.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jBDeshacer.setText("Deshacer");
         jBDeshacer.addActionListener(new java.awt.event.ActionListener() {
@@ -110,7 +119,7 @@ public class FrameJuego extends javax.swing.JFrame {
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jCBNombresTableros, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(panelBotones, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(panelTablero, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -126,7 +135,7 @@ public class FrameJuego extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jCBNombresTableros, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelBotones, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+                .addComponent(panelTablero, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -154,21 +163,27 @@ public class FrameJuego extends javax.swing.JFrame {
         String nombreTablero = jCBNombresTableros.getSelectedItem().toString();
 
         //Cargamos los Datos del Tablero Seleccionado
-        panelBotones.inicializaTablero(datosTablero.getTablero(nombreTablero));
+        panelTablero.inicializaTablero(datosTablero.getTablero(nombreTablero));
 
         //Activamos el Tablero
-        panelBotones.setPanelActivo(true);
+        panelTablero.setPanelActivo(true);
+        
+        //Comenzamos una Nueva Partida en el CSV
+        ficheroCSV.setNuevaPartida(nombreTablero);
     }
     
     private void reiniciarPartida(){
         //Ponemos el Modo Reiniciado
         inicarPartida = false;
+        
+        //Finalizamos la Partida en el CSV
+        ficheroCSV.setFinPartida(panelTablero.getNumBolasRestantes(), panelTablero.getTiempoTotal());
 
         //Obtenemos el Nombre del Tablero Seleccionado
         String nombreTablero = jCBNombresTableros.getSelectedItem().toString();
 
         //Reinicimos el Tablero
-        panelBotones.reiniciarTablero(datosTablero.getTablero(nombreTablero));
+        panelTablero.reiniciarTablero(datosTablero.getTablero(nombreTablero));
 
         //Cambiamos el Texto del Boton
         jBIniciar.setText("Iniciar Partida");
@@ -176,7 +191,7 @@ public class FrameJuego extends javax.swing.JFrame {
     
     private void jBDeshacerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeshacerActionPerformed
         //Deshacemos el Ultimo Movimiento Realizado
-        panelBotones.deshacerMovimiento();
+        panelTablero.deshacerMovimiento();
     }//GEN-LAST:event_jBDeshacerActionPerformed
 
     private void jCBNombresTablerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBNombresTablerosActionPerformed
@@ -186,8 +201,16 @@ public class FrameJuego extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         DatosXML datosXML = new DatosXML();
-        datosXML.generaXML(panelBotones.getMovimientos());
+        datosXML.generaXML(panelTablero.getMovimientos());
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        //Finalizamos la Partida en el CSV (Solo en Caso de que no se haya guardado)
+        ficheroCSV.setFinPartida(panelTablero.getNumBolasRestantes(), panelTablero.getTiempoTotal());
+
+        //Cerramos el Fichero CSV
+        ficheroCSV.setCloseFichero();
+    }//GEN-LAST:event_formWindowClosed
 
     /**
      * @param args the command line arguments
@@ -233,6 +256,6 @@ public class FrameJuego extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JComboBox jCBNombresTableros;
     private javax.swing.JLabel jLabel1;
-    private paquete.PanelTablero panelBotones;
+    private paquete.PanelTablero panelTablero;
     // End of variables declaration//GEN-END:variables
 }

@@ -8,6 +8,9 @@
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
     <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
+  <Events>
+    <EventHandler event="windowClosed" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowClosed"/>
+  </Events>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -41,7 +44,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jCBNombresTableros" min="-2" pref="86" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="panelBotones" alignment="0" min="-2" pref="323" max="-2" attributes="0"/>
+                          <Component id="panelTablero" alignment="0" min="-2" pref="323" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -64,7 +67,7 @@
                   <Component id="jCBNombresTableros" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="panelBotones" pref="323" max="32767" attributes="0"/>
+              <Component id="panelTablero" pref="323" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -79,7 +82,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBIniciarActionPerformed"/>
       </Events>
     </Component>
-    <Component class="paquete.PanelTablero" name="panelBotones">
+    <Component class="paquete.PanelTablero" name="panelTablero">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">

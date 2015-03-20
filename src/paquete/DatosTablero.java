@@ -70,7 +70,7 @@ public class DatosTablero {
     public int[][] getTablero(String nombreTablero){
 
         //Para guardar la Matriz del Tablero Seleccionado
-        int[][] tablero = new int[10][10];
+        int[][] tablero = null;
         
         //Ruta y Nombre del Fichero de Configuracion de los Tableros
         String nombreFichero = new File("").getAbsolutePath() + RUTA_TABLEROS + FICHERO_TABLEROS;

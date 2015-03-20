@@ -344,6 +344,30 @@ public class PanelTablero extends javax.swing.JPanel {
             setFinPartida(false);
     }
     
+    //Retornamos el Tiempo Total Empleado
+    public String getTiempoTotal(){
+        return jLTiempo.getText();
+    }
+    //Retorna el Numero de Bolas Restantes
+    public int getNumBolasRestantes(){
+
+        if (tablero != null){
+            int numNormal = 0;
+            int size = tablero.length;
+
+            for (int y=0; y<size; y++){
+                for (int x=0; x<size; x++){
+                    //Si la Posicion contiene una bola Normal
+                    if (tablero[y][x] == NORMAL)
+                        numNormal++;
+                }
+            }
+            return numNormal;
+        }
+        else
+            return 0;
+    }
+    
     
     private boolean hayUnoSeleccionado(){
         int size = tablero.length;
