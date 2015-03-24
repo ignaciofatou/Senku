@@ -346,7 +346,10 @@ public class PanelTablero extends javax.swing.JPanel {
     
     //Retornamos el Tiempo Total Empleado
     public String getTiempoTotal(){
-        return jLTiempo.getText();
+        if (jLTiempo.getText() != null)
+            return jLTiempo.getText();
+        else
+            return "";
     }
     //Retorna el Numero de Bolas Restantes
     public int getNumBolasRestantes(){

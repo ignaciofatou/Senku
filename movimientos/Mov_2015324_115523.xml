@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<MOVIMIENTOS>
+   <MOVIMIENTO>
+      <ANTERIOR>
+         <Y>2</Y>
+         <X>4</X>
+      </ANTERIOR>
+      <NUEVO>
+         <Y>4</Y>
+         <X>4</X>
+      </NUEVO>
+   </MOVIMIENTO>
+   <MOVIMIENTO>
+      <ANTERIOR>
+         <Y>5</Y>
+         <X>4</X>
+      </ANTERIOR>
+      <NUEVO>
+         <Y>3</Y>
+         <X>4</X>
+      </NUEVO>
+   </MOVIMIENTO>
+</MOVIMIENTOS>

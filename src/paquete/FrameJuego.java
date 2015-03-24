@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class FrameJuego extends javax.swing.JFrame {
 
     private boolean inicarPartida = false;
+    private boolean cargandoDatos = false;
     DatosTablero datosTablero;
     DatosCSV     ficheroCSV;
     private final int TABLERO_4 = 3;    
@@ -23,6 +24,9 @@ public class FrameJuego extends javax.swing.JFrame {
      */
     public FrameJuego() {
         initComponents();
+        
+        //Indicamos que estamos Cargando Datos
+        cargandoDatos = true;
 
         //Centramos la ventana
         setLocationRelativeTo(null);
@@ -30,11 +34,11 @@ public class FrameJuego extends javax.swing.JFrame {
         //Creamos el Objeto con los Datos del Fichero de Configuracion
         datosTablero = new DatosTablero();
         
-        //Cargamos el ComboBox con los Nombres de los Tableros
+        //Cargamos el ComboBox con los Nombres de los Tableros        
         ArrayList<String> nombresTableros = datosTablero.getNombresTableros();        
         for(String nombreTablero:nombresTableros){
             jCBNombresTableros.addItem(nombreTablero);
-        }
+        }        
         //Seleccionamos por defecto el Tablero Nº 4
         jCBNombresTableros.setSelectedIndex(TABLERO_4);
         
@@ -43,6 +47,9 @@ public class FrameJuego extends javax.swing.JFrame {
         
         //Cargamos el Tablero
         reiniciarPartida();
+        
+        //Indicamos que ya No estamos Cargando Datos
+        cargandoDatos = false;
     }
 
     /**
@@ -63,8 +70,8 @@ public class FrameJuego extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                formWindowClosed(evt);
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
             }
         });
 
@@ -176,9 +183,11 @@ public class FrameJuego extends javax.swing.JFrame {
         //Ponemos el Modo Reiniciado
         inicarPartida = false;
         
-        //Finalizamos la Partida en el CSV
-        ficheroCSV.setFinPartida(panelTablero.getNumBolasRestantes(), panelTablero.getTiempoTotal());
-
+        //Si no estamos cargando los Datos Iniciales
+        if (!cargandoDatos){
+            //Finalizamos la Partida en el CSV
+            ficheroCSV.setFinPartida(panelTablero.getNumBolasRestantes(), panelTablero.getTiempoTotal());
+        }
         //Obtenemos el Nombre del Tablero Seleccionado
         String nombreTablero = jCBNombresTableros.getSelectedItem().toString();
 
@@ -195,8 +204,11 @@ public class FrameJuego extends javax.swing.JFrame {
     }//GEN-LAST:event_jBDeshacerActionPerformed
 
     private void jCBNombresTablerosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBNombresTablerosActionPerformed
-        //Reiniciamos el Panel
-        reiniciarPartida();
+        //Si no estamos Cargando el ComboBox
+        if (!cargandoDatos){
+            //Reiniciamos el Panel
+            reiniciarPartida();
+        }
     }//GEN-LAST:event_jCBNombresTablerosActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -204,13 +216,13 @@ public class FrameJuego extends javax.swing.JFrame {
         datosXML.generaXML(panelTablero.getMovimientos());
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         //Finalizamos la Partida en el CSV (Solo en Caso de que no se haya guardado)
         ficheroCSV.setFinPartida(panelTablero.getNumBolasRestantes(), panelTablero.getTiempoTotal());
 
         //Cerramos el Fichero CSV
-        ficheroCSV.setCloseFichero();
-    }//GEN-LAST:event_formWindowClosed
+        ficheroCSV.setCloseFile();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

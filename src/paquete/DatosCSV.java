@@ -88,7 +88,7 @@ public class DatosCSV {
         }
     }
     //Cerramos el Fichero
-    public void setCloseFichero(){
+    public void setCloseFile(){
         try {
             //Cerrar el buffer
             if (bw != null) {
